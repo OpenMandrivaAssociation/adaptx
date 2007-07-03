@@ -5,7 +5,7 @@
 
 Name:		adaptx
 Version:	0.9.13
-Release:	%mkrel 3.3
+Release:	%mkrel 3.4
 Epoch:		0
 Summary:	AdaptX
 License:	BSD-like
