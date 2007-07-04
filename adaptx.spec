@@ -1,57 +1,86 @@
-%{!?_with_external: %{!?_without_external: %define _with_external 1}}
+# Copyright (c) 2000-2005, JPackage Project
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name of the JPackage Project nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
 
-%define gcj_support 1
-%define	section	free
+%define _with_gcj_support 1
 
-Name:		adaptx
-Version:	0.9.13
-Release:	%mkrel 3.4
-Epoch:		0
-Summary:	AdaptX
-License:	BSD-like
-Group:		Development/Java
-Source0:	%{name}-%{version}-src-RHCLEAN.tar.bz2
-Patch0:		%{name}-%{version}-xsl.patch
-Patch1:		%{name}-%{version}-missingstubs.patch
-Url:		http://castor.exolab.org/
-Requires:	ant >= 0:1.6
-Requires:	jpackage-utils >= 0:1.6
-Requires:	log4j
-Requires:	xml-commons-apis
-Requires:	xerces-j2
-%if %{?_with_external:1}%{!?_with_external:0}
-BuildRequires:	%{name} = %{epoch}:%{version}-%{release}
+%define gcj_support %{?_with_gcj_support:1}%{!?_with_gcj_support:%{?_without_gcj_support:0}%{!?_without_gcj_support:%{?_gcj_support:%{_gcj_support}}%{!?_gcj_support:0}}}
+
+Name:          adaptx
+Version:       0.9.13
+Release:       %mkrel 4.1.1
+Summary:       AdaptX XSLT processor and XPath engine
+License:       BSD
+Group:         Development/Java
+# svn export http://svn.codehaus.org/castor/adaptx/tags/0.9.13/ adaptx-0.9.13-src
+# tar cjf adaptx-0.9.13-src.tar.bz2 adaptx-0.9.13-src
+Source0:       %{name}-%{version}-src.tar.bz2
+
+Patch0:        %{name}-%{version}-xsl.patch
+Patch1:        %{name}-%{version}-missingstubs.patch
+Url:           http://castor.codehaus.org/
+BuildRequires: ant >= 0:1.6
+BuildRequires: jpackage-utils >= 0:1.6
+BuildRequires: log4j
+BuildRequires: xml-commons-apis
+BuildRequires: xerces-j2
+Requires:      log4j
+Requires:      xml-commons-apis
+Requires:      xerces-j2
+Requires(pre):    jpackage-utils
+Requires(postun): jpackage-utils
+%if ! %{gcj_support}
+BuildArch:    noarch
 %endif
-BuildRequires:	ant
-BuildRequires:	ant-trax
-BuildRequires:	java-devel
-BuildRequires:	jaxp_transform_impl
-BuildRequires:	jpackage-utils >= 0:1.5
-BuildRequires:	log4j
-BuildRequires:	xerces-j2
-BuildRequires:  xml-commons-apis
+BuildRoot:    %{_tmppath}/%{name}-%{version}-%{release}-root
+
 %if %{gcj_support}
-BuildRequires:	java-gcj-compat-devel >= 0:1.0.31
-Requires(post):	java-gcj-compat >= 0:1.0.31
-Requires(postun): java-gcj-compat >= 0:1.0.31
-%else
-BuildArch:	noarch
+BuildRequires:    java-gcj-compat-devel
+Requires(post):   java-gcj-compat
+Requires(postun): java-gcj-compat
 %endif
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 Adaptx is an XSLT processor and XPath engine.
 
 %package javadoc
-Group:		Development/Java
-Summary:	Javadoc for %{name}
+Group:            Development/Java
+Summary:          Javadoc for %{name}
+Requires(post):   /bin/rm,/bin/ln
+Requires(postun): /bin/rm
 
 %description javadoc
 Javadoc for %{name}.
 
 %package doc
-Summary:	Documentation for %{name}
-Group:		Development/Java
+Summary:    Documentation for %{name}
+Group:      Development/Java
 
 %description doc
 Documentation for %{name}.
@@ -61,27 +90,27 @@ Documentation for %{name}.
 # remove CVS internal files
 for dir in `find . -type d -name CVS`; do rm -rf $dir; done
 # remove all binary libs
-find . -name "*.jar" -exec rm -f {} \;
+for j in $(find . -name "*.jar"); do
+    %{__rm} $j
+done
 
 %patch0
 %patch1
 
+# (walluck): fix javadoc parsing
+for file in `%{__grep} -rl 'enum[\\. ]' *`; do
+    %{__perl} -pi -e 's/enum/en/g' $file
+done
+
 %build
 perl -p -i -e 's|classic|modern|' src/build.xml
-export OPT_JAR_LIST=
-export CLASSPATH=$(build-classpath log4j xerces-j2)
-%ant -buildfile src/build.xml jar
-%ant -buildfile src/build.xml javadoc
-%if %{?_with_external:1}%{!?_with_external:0}
-export CLASSPATH=$CLASSPATH:$(build-classpath adaptx xml-commons-apis log4j xerces-j2)
-%else
-export CLASSPATH=$CLASSPATH:`pwd`/dist/adaptx_%{version}.jar:$(build-classpath xml-commons-apis log4j xerces-j2)
-%endif
-export OPT_JAR_LIST="ant/ant-trax jaxp_transform_impl"
-%ant -buildfile src/build.xml doc
+export CLASSPATH=$(build-classpath xml-commons-apis log4j xerces-j2)
+%{ant} -buildfile src/build.xml jar javadoc
+CLASSPATH=$CLASSPATH:dist/adaptx_%{version}.jar
+%{ant} -buildfile src/build.xml doc
 
 %install
-%{__rm} -rf %{buildroot}
+rm -rf $RPM_BUILD_ROOT
 
 # jar
 install -d -m 755 $RPM_BUILD_ROOT%{_javadir}
@@ -90,6 +119,7 @@ install -m 644 dist/%{name}_%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-%{
 # javadoc
 install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 cp -pr build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+(cd %{buildroot}%{_javadocdir} && %{__ln_s} %{name}-%{version} %{name})
 rm -rf build/doc/javadoc
 
 %if %{gcj_support}
@@ -107,30 +137,21 @@ rm -rf $RPM_BUILD_ROOT
 %{clean_gcjdb}
 %endif
 
-%post javadoc
-rm -f %{_javadocdir}/%{name}
-ln -s %{name}-%{version} %{_javadocdir}/%{name}
-
-%postun javadoc
-if [ "$1" = "0" ]; then
-    rm -f %{_javadocdir}/%{name}
-fi
-
 %files
 %defattr(0664,root,root,0755)
 %doc src/etc/{CHANGELOG,contributors.html,LICENSE}
 %{_javadir}/*
+
 %if %{gcj_support}
 %dir %{_libdir}/gcj/%{name}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/*.jar.*
+%attr(-,root,root) %{_libdir}/gcj/%{name}/*
 %endif
 
 %files javadoc
 %defattr(0664,root,root,0755)
 %{_javadocdir}/%{name}-%{version}
+%dir %{_javadocdir}/%{name}
 
 %files doc
 %defattr(0664,root,root,0755)
 %doc build/doc/*
-
-
