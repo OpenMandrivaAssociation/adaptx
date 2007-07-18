@@ -34,7 +34,7 @@
 
 Name:          adaptx
 Version:       0.9.13
-Release:       %mkrel 4.1.1
+Release:       %mkrel 4.1.2
 Summary:       AdaptX XSLT processor and XPath engine
 License:       BSD
 Group:         Development/Java
@@ -48,10 +48,10 @@ Url:           http://castor.codehaus.org/
 BuildRequires: ant >= 0:1.6
 BuildRequires: jpackage-utils >= 0:1.6
 BuildRequires: log4j
-BuildRequires: xml-commons-apis
+BuildRequires: xml-commons-jaxp-1.3-apis
 BuildRequires: xerces-j2
 Requires:      log4j
-Requires:      xml-commons-apis
+Requires:      xml-commons-jaxp-1.3-apis
 Requires:      xerces-j2
 Requires(pre):    jpackage-utils
 Requires(postun): jpackage-utils
@@ -104,7 +104,7 @@ done
 
 %build
 perl -p -i -e 's|classic|modern|' src/build.xml
-export CLASSPATH=$(build-classpath xml-commons-apis log4j xerces-j2)
+export CLASSPATH=$(build-classpath xml-commons-jaxp-1.3-apis log4j xerces-j2)
 %{ant} -buildfile src/build.xml jar javadoc
 CLASSPATH=$CLASSPATH:dist/adaptx_%{version}.jar
 %{ant} -buildfile src/build.xml doc
