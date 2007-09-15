@@ -34,7 +34,7 @@
 
 Name:          adaptx
 Version:       0.9.13
-Release:       %mkrel 4.1.2
+Release:       %mkrel 4.1.3
 Summary:       AdaptX XSLT processor and XPath engine
 License:       BSD
 Group:         Development/Java
@@ -62,8 +62,6 @@ BuildRoot:    %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if %{gcj_support}
 BuildRequires:    java-gcj-compat-devel
-Requires(post):   java-gcj-compat
-Requires(postun): java-gcj-compat
 %endif
 
 %description
