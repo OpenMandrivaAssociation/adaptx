@@ -34,7 +34,7 @@
 
 Name:          adaptx
 Version:       0.9.13
-Release:       %mkrel 4.1.3
+Release:       %mkrel 4.1.4
 Summary:       AdaptX XSLT processor and XPath engine
 License:       BSD
 Group:         Development/Java
@@ -46,7 +46,7 @@ Patch0:        %{name}-%{version}-xsl.patch
 Patch1:        %{name}-%{version}-missingstubs.patch
 Url:           http://castor.codehaus.org/
 BuildRequires: ant >= 0:1.6
-BuildRequires: jpackage-utils >= 0:1.6
+BuildRequires: java-rpmbuild >= 0:1.6
 BuildRequires: log4j
 BuildRequires: xml-commons-jaxp-1.3-apis
 BuildRequires: xerces-j2
