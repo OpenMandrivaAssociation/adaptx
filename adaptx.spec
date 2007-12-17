@@ -58,7 +58,6 @@ Requires(postun): jpackage-utils
 %if ! %{gcj_support}
 BuildArch:    noarch
 %endif
-BuildRoot:    %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if %{gcj_support}
 BuildRequires:    java-gcj-compat-devel
