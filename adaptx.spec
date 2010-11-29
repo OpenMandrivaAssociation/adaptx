@@ -34,7 +34,7 @@
 
 Name:          adaptx
 Version:       0.9.13
-Release:       %mkrel 4.1.6
+Release:       %mkrel 4.1.7
 Summary:       AdaptX XSLT processor and XPath engine
 License:       BSD
 Group:         Development/Java
