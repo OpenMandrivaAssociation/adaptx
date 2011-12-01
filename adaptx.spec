@@ -108,15 +108,15 @@ CLASSPATH=$CLASSPATH:dist/adaptx_%{version}.jar
 %{ant} -buildfile src/build.xml doc
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 # jar
-install -d -m 755 $RPM_BUILD_ROOT%{_javadir}
-install -m 644 dist/%{name}_%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
-(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} ${jar/-%{version}/}; done)
+install -d -m 755 %{buildroot}%{_javadir}
+install -m 644 dist/%{name}_%{version}.jar %{buildroot}%{_javadir}/%{name}-%{version}.jar
+(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} ${jar/-%{version}/}; done)
 # javadoc
-install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-cp -pr build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+install -d -m 755 %{buildroot}%{_javadocdir}/%{name}-%{version}
+cp -pr build/doc/javadoc/* %{buildroot}%{_javadocdir}/%{name}-%{version}
 (cd %{buildroot}%{_javadocdir} && %{__ln_s} %{name}-%{version} %{name})
 rm -rf build/doc/javadoc
 
@@ -125,7 +125,7 @@ rm -rf build/doc/javadoc
 %endif
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %if %{gcj_support}
 %post
